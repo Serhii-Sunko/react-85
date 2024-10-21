@@ -1,10 +1,11 @@
-import { QuizForm } from "./QuizForm";
+import { QuizForm } from "./QuizForm/QuizForm";
 import { QuizList } from "./QuizList/QuizList";
 import { SearchBar } from "./SearchBar";
 import initialQuizItems  from "../quiz-items.json"
 import { GlobalStyle } from "./GlobalStyle";
 import { Layout } from "./Layout";
 import { Component } from "react";
+import { nanoid } from "nanoid"
 
 
 export class App extends Component {
@@ -15,7 +16,16 @@ export class App extends Component {
      level: "all",
     }
   };
-  
+  addQuiz = newQuiz => {
+    this.setState(prevState => ({
+      quizItems: [...prevState.quizItems,
+        {
+          id: nanoid(),
+          ...newQuiz,
+        }]
+    }) )
+  }
+
   deleteQuiz = quizId => {
     this.setState(prevState => ({
       quizItems: prevState.quizItems.filter(quiz => quiz.id !== quizId),
@@ -54,7 +64,7 @@ export class App extends Component {
     const visibleItems = this.getVisibleQuizItems();
   return (
     <Layout>
-      <QuizForm />
+      <QuizForm onAdd={ this.addQuiz} />
       <SearchBar
         level={filters.level}
         topic={filters.topic}
