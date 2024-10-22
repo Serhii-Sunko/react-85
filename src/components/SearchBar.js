@@ -1,4 +1,4 @@
-export const SearchBar = ({topic,level, onChangeLevel, onChangeTopic}) => {
+export const SearchBar = ({topic,level, onChangeLevel, onChangeTopic, onReset}) => {
     return (<div>
         <input
             type="text"
@@ -11,6 +11,7 @@ export const SearchBar = ({topic,level, onChangeLevel, onChangeTopic}) => {
             <option value="intermediate">Intermediate</option>
             <option value="advanced">Advanced</option>
         </select>
+        <button onClick={onReset} >Reset Filters</button>
     </div>
     );
 };

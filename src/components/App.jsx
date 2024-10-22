@@ -16,6 +16,23 @@ export class App extends Component {
      level: "all",
     }
   };
+
+  componentDidMount() {
+    const savedFilters = localStorage.getItem("quiz-filters")
+    if (savedFilters !== null) {
+      this.setState({
+        filters: JSON.parse(savedFilters),
+      });
+    }
+   }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.filters !== this.state.filters) {
+      localStorage.setItem("quiz-filters", JSON.stringify(this.state.filters));
+    }
+  }
+
+
   addQuiz = newQuiz => {
     this.setState(prevState => ({
       quizItems: [...prevState.quizItems,
@@ -48,6 +65,15 @@ export class App extends Component {
     }))
   }
  
+  resetFilters = () => {
+    this.setState({
+      filters: {
+        topic: "",
+        level: "all",
+      },
+    });
+  };
+
   getVisibleQuizItems = () => {
     const { quizItems, filters } = this.state;
     return quizItems.filter(
@@ -70,6 +96,7 @@ export class App extends Component {
         topic={filters.topic}
         onChangeLevel={this.changeLevelFilter}
         onChangeTopic={this.changeTopicFilter}
+        onReset={this.resetFilters}
       />
       <QuizList items={visibleItems} onDelete={this.deleteQuiz } />
       <GlobalStyle/>
