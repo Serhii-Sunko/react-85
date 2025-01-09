@@ -4,17 +4,47 @@ import { QuizList } from "./QuizList/QuizList";
 import { SearchBar } from "./SearchBar";
 import { GlobalStyle } from "./GlobalStyle";
 import { Layout } from "./Layout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createQuiz, deleteQuizById, fetchQuizzes } from "api";
+
+const getInitialFilters = () => {
+  const savedFilters = localStorage.getItem("quiz-filters")
+  if (savedFilters !== null)  {
+  return JSON.parse(savedFilters)
+  }
+    return {
+    topic: "",
+      level: "all",
+  }
+  }
 
 export const App = () => {
   const [quizItems, setQuizItems] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
-  const [filters, setFilters] = useState({
-    topic: "",
-    level: "all",
-  })
+  const [filters, setFilters] = useState(getInitialFilters);
+//  HTTP запрос за всеми квизами
+  useEffect(() => {
+    async function getQuizzes() {
+      try {
+        setLoading(true)
+        setError(false);
+        const quizzes = await fetchQuizzes();
+        setQuizItems(quizzes);
+        this.setState({ quizItems: quizzes });
+      } catch (error) {
+        setError(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    getQuizzes()
+  }, [])
+// Пишем фильтри в Local Storage
+useEffect(() => {
+  localStorage.setItem("quiz-filters", JSON.stringify(filters));
+}, [filters])
 
 const addQuiz = async newQuiz => {
   try {
@@ -46,21 +76,9 @@ const deleteQuiz = async quizId => {
     }
   };
 
-  const changeLevelFilter = (newLevel) => {
-    setFilters(prevFilters => ({
-      ...prevFilters, 
-      level: newLevel,
-    }))
+  const changeFilters = (value, keyFilter) => {
+    setFilters(prevFilters => ({...prevFilters, [keyFilter]:value }))
   }
-
- const changeTopicFilter = (newTopic) => {
- setFilters(prevFilters => ({
-      ...prevFilters, 
-      topic: newTopic,
-    }))
-
-  }
-
  const resetFilters = () => {
     setFilters(prevFilters => ({
         topic: "",
@@ -83,8 +101,7 @@ const visibleItems = quizItems.filter(
         <SearchBar
           level={filters.level}
           topic={filters.topic}
-          onChangeLevel={changeLevelFilter}
-          onChangeTopic={changeTopicFilter}
+          onChange={changeFilters}
           onReset={resetFilters}
         />
         {loading && <div>LOADING ..........</div>}
